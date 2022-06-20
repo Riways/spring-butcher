@@ -1,21 +1,26 @@
 package com.vbv.corona_desinfector;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import lombok.SneakyThrows;
 
 public class ObjectFactory {
 
 	private static ObjectFactory ourInstance = new ObjectFactory();
-	private Config config = new JavaConfig("com.vbv");
+	private Config config ;
 
+	private ObjectFactory() {
+		//hardcode
+		config = new JavaConfig("com.vbv", new HashMap<>(Map.of(Policemen.class, AngryPolicemen.class)));
+	}
+	
 	public static ObjectFactory getInstance() {
 		return ourInstance;
 
 	}
 
-	private ObjectFactory() {
-
-	}
 	
 	@SneakyThrows
 	public <T> T createObject(Class<T> type) {
