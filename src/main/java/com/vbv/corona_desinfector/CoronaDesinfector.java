@@ -2,6 +2,7 @@ package com.vbv.corona_desinfector;
 
 //1 responsibility
 @Singleton
+@Deprecated
 public class CoronaDesinfector {
 
 	// @Autowired analog
