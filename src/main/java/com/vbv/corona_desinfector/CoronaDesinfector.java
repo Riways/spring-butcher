@@ -1,18 +1,16 @@
 package com.vbv.corona_desinfector;
 
-
-//7+ responsibilities in perspective
+//1 responsibility
 public class CoronaDesinfector {
 
-	/*
-	 * 3 responsibilities: 1. create ConsoleAnnouncer 2. choose Announcer
-	 * implementation 3. initialize Announcer implementation ( constructor
-	 * parameters, or getters-setters)
-	 */
-	private Announcer announcer = ObjectFactory.getInstance().createObject(Announcer.class);
-	private Policemen policemen = ObjectFactory.getInstance().createObject(Policemen.class);
+	// @Autowired analog
+	@InjectByType
+	private Announcer announcer ;
+	
+	// @Autowired analog
+	@InjectByType
+	private Policemen policemen ;
 
-	// 3 responsibilities:
 	public void start(Room room) {
 		announcer.firstAnnounce();
 		policemen.policeWork();
