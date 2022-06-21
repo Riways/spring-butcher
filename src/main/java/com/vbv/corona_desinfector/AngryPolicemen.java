@@ -9,9 +9,9 @@ public class AngryPolicemen implements Policemen {
 
 	}
 	
-	@PostConstruct
-	public void init() {
-		System.out.println(this.getClass() + " POST CONSTRUCT");
-	}
+//	@PostConstruct
+//	public void init() {
+//		System.out.println(this.getClass() + " POST CONSTRUCT");
+//	}
 
 }

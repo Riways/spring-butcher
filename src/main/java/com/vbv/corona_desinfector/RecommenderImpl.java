@@ -1,7 +1,8 @@
 package com.vbv.corona_desinfector;
 
 
-//@Singletone
+@Deprecated
+@Singleton
 public class RecommenderImpl implements Recommender {
 	
 	@InjectProperty()
