@@ -1,5 +1,6 @@
 package com.vbv.corona_desinfector;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +29,6 @@ public class ObjectFactory {
 
 	}
 
-	
 	public static ObjectFactory getInstance() {
 		return ourInstance;
 
@@ -39,9 +39,25 @@ public class ObjectFactory {
 
 		T t = implClass.getDeclaredConstructor().newInstance();
 		
+		configure(t);
+		
+		invokeInit(implClass, t);
+		
+		return t;
+	}
+	
+	@SneakyThrows
+	private <T> void invokeInit(Class<T> implClass, T t) {
+		for(Method method: implClass.getMethods()) {
+			if( method.isAnnotationPresent(PostConstruct.class)) {
+				method.invoke(t);
+			}
+		}
+	}
+	
+	private <T> void configure(T t) {
 		//lot of work but it executes only on bootstrap if our objects are Singletone
 		configurators.forEach((objectConfigurator) -> objectConfigurator.configure(t, context));
 
-		return t;
 	}
 }
