@@ -23,7 +23,6 @@ public class JavaConfig implements Config {
 			}
 		
 			Class clazz = classes.iterator().next();
-			System.out.println(clazz);
 			return clazz;
 		});
 		return computeIfAbsent;
