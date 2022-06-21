@@ -1,27 +1,33 @@
 package com.vbv.corona_desinfector;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.lang.reflect.Field;
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Set;
 
 import lombok.SneakyThrows;
 
 public class ObjectFactory {
 
 	private static ObjectFactory ourInstance = new ObjectFactory();
+	private List<ObjectConfigurator> configurators = new ArrayList<ObjectConfigurator>();;
 	private Config config;
 
+	@SneakyThrows
 	private ObjectFactory() {
 
-		// hardcode imitation of config(Class/file/document)
+		// hardcode imitation of configuration(Class/file/document)
 		Map<Class, Class> configImitation = new HashMap<>(Map.of(Policemen.class, AngryPolicemen.class));
-
 		config = new JavaConfig("com.vbv", configImitation);
+		
+		// if any new ObjectConfigurator classes will be created, they automatically would be added to configurators list   
+		Set<Class<? extends ObjectConfigurator>> objectConfiguratorClasses = config.getScanner()
+				.getSubTypesOf(ObjectConfigurator.class);
+		for (Class<? extends ObjectConfigurator> clazz : objectConfiguratorClasses) {
+			configurators.add(clazz.getDeclaredConstructor().newInstance());
+		}
+
 	}
 
 	public static ObjectFactory getInstance() {
@@ -32,39 +38,13 @@ public class ObjectFactory {
 	@SneakyThrows
 	public <T> T createObject(Class<T> type) {
 		Class<? extends T> implClass = type;
-		T t = null;
 		if (type.isInterface()) {
 			implClass = config.getImplClass(type);
 		}
-		t = implClass.getDeclaredConstructor().newInstance();
-
-		Field[] fields = implClass.getDeclaredFields();
-		for (Field field : fields) {
-			InjectProperty annotation = field.getAnnotation(InjectProperty.class);
-			String pathToProperties = ClassLoader.getSystemClassLoader().getResource("application.properties")
-					.getPath();
-			Map<String, String> propertiesMap;
-			String value;
-			try (Stream<String> lines = new BufferedReader(new FileReader(pathToProperties)).lines()) {
-				propertiesMap = lines.map(line -> line.split("="))
-						.collect(Collectors.toMap(arr -> arr[0], arr -> arr[1]));
-
-			}
-			if (annotation != null) {
-
-				if (annotation.value().isEmpty()) {
-					value = propertiesMap.get(field.getName());
-
-				} else {
-					value = propertiesMap.get(annotation.value());
-				}
-				field.setAccessible(true);
-
-				// in the first argument (t) we pass the object whose field we want to change
-				field.set(t, value);
-			}
-
-		}
+		T t = implClass.getDeclaredConstructor().newInstance();
+		
+		//lot of work but it executes only on bootstrap if our objects are Singletone
+		configurators.forEach((objectConfigurator) -> objectConfigurator.configure(t));
 
 		return t;
 	}
